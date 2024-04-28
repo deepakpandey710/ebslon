@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { API_BASE_URL } from "../environment/testEnvironment";
+
 const Login = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -14,7 +16,7 @@ const Login = () => {
     }, [])
 
     const handlelogin = async () => {
-        let result = await axios.post('http://localhost:5000/api/login', { email, password });
+        let result = await axios.post(`${API_BASE_URL}/login`, { email, password });
         if (result.data.token) {
             localStorage.setItem('user', JSON.stringify(result.data));                 
             localStorage.setItem('token', JSON.stringify(result.data.token));           
@@ -24,7 +26,6 @@ const Login = () => {
             alert("Please enter correct details");
         }
     }
-
 
     return (
         <div className="login">

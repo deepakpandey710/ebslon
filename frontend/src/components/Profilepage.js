@@ -1,22 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { API_BASE_URL } from '../environment/testEnvironment';
+
 const ProfilePage = () => {
     const [selectedFile, setSelectedFile] = useState(null);
     const [user, setUser] = useState({});
-    const [imageUrl, setImageUrl] = useState('');
     const token = JSON.parse(localStorage.getItem('token'));
 
     useEffect(() => {
         const getUserDetail = async () => {
-            const res = await axios.get('http://localhost:5000/api/profile', {
+            const res = await axios.get(`${API_BASE_URL}/profile`, {
                 headers: {
                     'Authorization': token
                 }
             });
             setUser(res.data.data);
-            const blob = new Blob([res.data.data.profilePic], { type: 'image/jpeg' });
-            const url = URL.createObjectURL(blob);
-            setImageUrl(url);
         };
         getUserDetail();
         //eslint-disable-next-line
@@ -31,13 +29,16 @@ const ProfilePage = () => {
             const formData = new FormData();
             formData.append('image', selectedFile);
             formData.append('email', user.email);
-            await axios.post('http://localhost:5000/api/profile/photo', formData, {
+            const result =await axios.post(`${API_BASE_URL}/profile/photo`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     'Authorization': token
 
                 }
             });
+            if(result?.data?.success){
+                setUser({...user,profilePic:result.data.profilePic});
+            }
         } catch (error) {
             console.error('Upload failed:', error);
         }
@@ -45,23 +46,19 @@ const ProfilePage = () => {
 
 
     return (
-        <div>
+        <div className='profile'>
             <div className='profile-div ' >
                 <h1> User Profile</h1>
                 <p className='user-detail'>Username :- {user.userName}</p>
                 <p className='user-detail'>Email :- {user.email}</p>
                 <input type='file' accept='image/*' onChange={handleFileChange} />
-                <button className='appButton' onClick={handleUpload} disabled={!selectedFile}>Upload</button>
-                <div className='profile-pic'>
-                    {selectedFile && <img src={URL.createObjectURL(selectedFile)} alt="Selected" />}
-                </div>
+                <button className='appButton' onClick={handleUpload} disabled={!selectedFile}>Upload New Picture</button>
             </div >
             <div className='profile-pic'>
-                {user.profilePic && <img src={imageUrl} alt='profile-pic' />}
-                {/* {user.profilePic && <img src={`../../../backend/uploads/${user.profilePic}`} alt='profile-pic' />} */}
+                {user.profilePic && <img src={`${API_BASE_URL}/${user.profilePic}`} alt='profile-pic' />}
             </div>
         </div>
-
     )
 }
+
 export default ProfilePage;

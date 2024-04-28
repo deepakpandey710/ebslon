@@ -91,10 +91,11 @@ exports.getProfile = async (email) => {
 
 exports.updateProfilePicture = async (email, filePath) => {
     try {
-        await user.findOneAndUpdate({ email }, { $set: { profilePic: filePath } }, { new: true });
+        const res = await user.findOneAndUpdate({ email }, { $set: { profilePic: filePath } }, { new: true });
         return {
             success: true,
-            message: 'Profile Picture Uploaded successfully'
+            message: 'Profile Picture Uploaded successfully',
+            profilePic: res.profilePic
         }
     } catch (error) {
         return {
